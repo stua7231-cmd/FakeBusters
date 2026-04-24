@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FakeBusters 🕵️</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c1:#FF6B6B;--c2:#FFD93D;--c3:#6BCB77;--c4:#4ECDC4;--c5:#A855F7;--c6:#FF9A3C;
+  --bg:#FFF9F0;--card:#FFFFFF;--text:#1A1A2E;--muted:#8899AA;
+  --r:22px;--sh:0 8px 32px rgba(0,0,0,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(circle at 10% 20%,rgba(255,107,107,0.08) 0%,transparent 40%),
+  radial-gradient(circle at 90% 80%,rgba(78,205,196,0.10) 0%,transparent 40%),
+  radial-gradient(circle at 50% 50%,rgba(255,217,61,0.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+
+.app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;z-index:1;padding-bottom:88px;}
+
+/* NAV */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
+  background:#fff;border-radius:28px 28px 0 0;padding:10px 6px 16px;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.10);z-index:200;
+  display:flex;justify-content:space-around;}
+.nb{display:flex;flex-direction:column;align-items:center;gap:2px;
+  background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;
+  font-size:10px;font-weight:800;color:var(--muted);
+  padding:6px 10px;border-radius:16px;transition:all .2s;min-width:56px;}
+.nb .ni{font-size:22px;transition:transform .2s;}
+.nb.active{color:var(--c1);background:rgba(255,107,107,0.10);}
+.nb.active .ni{transform:scale(1.2);}
+
+/* SCREENS */
+.screen{display:none;padding:0 14px;animation:fadeUp .3s ease;}
+.screen.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 2px 8px;}
+.logo{font-family:'Baloo 2',cursive;font-size:26px;font-weight:800;
+  background:linear-gradient(135deg,var(--c1),var(--c6));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.star-pill{background:var(--c2);border-radius:30px;padding:6px 14px;
+  font-weight:900;font-size:15px;display:flex;align-items:center;gap:4px;
+  box-shadow:0 4px 12px rgba(255,217,61,0.45);cursor:pointer;}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:18px;}
+.card+.card{margin-top:12px;}
+
+/* HERO */
+.hero{text-align:center;padding:10px 0 18px;}
+.mascot-wrap{width:130px;height:130px;margin:0 auto 12px;position:relative;}
+.mascot-bg{width:130px;height:130px;border-radius:50%;
+  background:linear-gradient(135deg,var(--c1),var(--c5));
+  display:flex;align-items:center;justify-content:center;
+  font-size:72px;box-shadow:0 12px 36px rgba(255,107,107,0.38);
+  animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hero h1{font-family:'Baloo 2',cursive;font-size:26px;font-weight:800;margin-bottom:4px;}
+.hero p{color:var(--muted);font-size:14px;font-weight:700;margin-bottom:18px;}
+
+/* AVATAR DISPLAY */
+.avatar-display{position:relative;display:inline-block;}
+.avatar-outfit{position:absolute;bottom:-4px;right:-4px;font-size:28px;}
+
+/* BTN */
+.btn{border:none;border-radius:50px;padding:14px 32px;font-size:16px;font-weight:900;
+  font-family:'Nunito',sans-serif;cursor:pointer;transition:transform .15s,box-shadow .15s;
+  display:inline-flex;align-items:center;gap:8px;}
+.btn:hover{transform:translateY(-3px);}
+.btn:active{transform:scale(0.96);}
+.btn-primary{background:linear-gradient(135deg,var(--c1),#e84545);color:#fff;
+  box-shadow:0 8px 24px rgba(255,107,107,0.45);}
+.btn-green{background:linear-gradient(135deg,var(--c3),#4CAF50);color:#fff;
+  box-shadow:0 6px 18px rgba(107,203,119,0.45);}
+.btn-yellow{background:linear-gradient(135deg,var(--c2),#F0B400);color:#5A3E00;
+  box-shadow:0 6px 18px rgba(255,217,61,0.45);}
+.btn-full{width:100%;justify-content:center;font-size:18px;padding:16px;}
+
+/* PROGRESS BAR */
+.prog-wrap{background:#EEF2FF;border-radius:30px;height:18px;overflow:hidden;margin:6px 0 4px;}
+.prog-fill{height:100%;border-radius:30px;background:linear-gradient(90deg,var(--c3),var(--c4));
+  transition:width .6s cubic-bezier(.4,2,.6,1);}
+.prog-label{font-size:12px;font-weight:800;color:var(--muted);display:flex;justify-content:space-between;}
+
+/* STREAK */
+.streak-row{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFF3E0,#FFE8C0);
+  border-radius:16px;padding:12px 16px;margin-bottom:12px;}
+.streak-fire{font-size:36px;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.streak-info h3{font-size:22px;font-weight:900;color:var(--c6);}
+.streak-info p{font-size:12px;font-weight:700;color:var(--muted);}
+
+/* QUIZ GRID */
+.sec-title{font-size:16px;font-weight:900;margin:16px 0 10px;display:flex;align-items:center;gap:6px;}
+.quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.qcard{background:var(--card);border-radius:20px;padding:14px 12px;box-shadow:var(--sh);
+  cursor:pointer;transition:transform .18s,box-shadow .18s;text-align:center;
+  border:2.5px solid transparent;position:relative;}
+.qcard:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(0,0,0,0.13);}
+.qcard.done{border-color:var(--c3);background:#F0FFF4;}
+.qcard.locked{opacity:.55;cursor:not-allowed;filter:grayscale(60%);}
+.qcard .qi{font-size:38px;margin-bottom:6px;}
+.qcard .qt{font-size:12px;font-weight:800;color:var(--text);}
+.qcard .qs{font-size:11px;color:var(--muted);font-weight:700;margin-top:3px;}
+.done-badge{position:absolute;top:6px;right:6px;font-size:14px;}
+
+/* QUIZ PLAY */
+.qheader{display:flex;align-items:center;gap:10px;padding:16px 2px 12px;}
+.qheader h2{font-size:18px;font-weight:900;flex:1;}
+.back-btn{background:var(--card);border:none;border-radius:50%;width:40px;height:40px;
+  font-size:20px;cursor:pointer;box-shadow:var(--sh);display:flex;align-items:center;justify-content:center;
+  transition:transform .15s;}
+.back-btn:hover{transform:scale(1.1);}
+
+.video-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin-bottom:14px;}
+.video-area{background:linear-gradient(135deg,#1A1A2E,#16213E);
+  min-height:180px;display:flex;align-items:center;justify-content:center;
+  font-size:80px;position:relative;padding:20px;}
+.video-placeholder{text-align:center;color:white;}
+.video-placeholder .vp-icon{font-size:70px;margin-bottom:8px;}
+.video-placeholder p{font-size:13px;opacity:.7;font-weight:700;}
+.news-bubble{background:white;border-radius:14px;padding:12px 16px;
+  font-size:14px;font-weight:700;color:var(--text);max-width:280px;
+  line-height:1.5;border-left:4px solid var(--c1);box-shadow:0 4px 16px rgba(0,0,0,0.10);}
+.news-src{font-size:11px;color:var(--muted);margin-top:5px;font-weight:600;}
+.char-say{font-size:13px;font-weight:800;color:var(--c1);padding:10px 16px 4px;}
+
+.q-text{padding:12px 16px;font-size:16px;font-weight:800;line-height:1.4;}
+.answers{display:flex;flex-direction:column;gap:9px;margin-bottom:12px;}
+.ans-btn{background:var(--card);border:2.5px solid #EEF0FF;border-radius:18px;
+  padding:15px 18px;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif;
+  color:var(--text);cursor:pointer;text-align:left;transition:all .15s;
+  display:flex;align-items:center;gap:12px;box-shadow:0 3px 10px rgba(0,0,0,0.05);}
+.ans-letter{width:32px;height:32px;border-radius:50%;background:#EEF2FF;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;color:var(--c5);flex-shrink:0;transition:all .15s;}
+.ans-btn:hover{border-color:var(--c4);background:#F0FFFF;transform:translateX(4px);}
+.ans-btn:hover .ans-letter{background:var(--c4);color:white;}
+.ans-btn.correct{border-color:var(--c3);background:#F0FFF4;}
+.ans-btn.correct .ans-letter{background:var(--c3);color:white;}
+.ans-btn.wrong{border-color:var(--c1);background:#FFF5F5;}
+.ans-btn.wrong .ans-letter{background:var(--c1);color:white;}
+.ans-btn:disabled{cursor:default;transform:none;}
+
+/* RESULT */
+.result-box{background:var(--card);border-radius:var(--r);padding:22px;text-align:center;
+  box-shadow:var(--sh);margin-bottom:14px;display:none;animation:bounceIn .4s cubic-bezier(.4,2,.6,1);}
+.result-box.show{display:block;}
+@keyframes bounceIn{0%{transform:scale(0.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.result-emoji{font-size:64px;margin-bottom:6px;}
+.result-box h3{font-size:22px;font-weight:900;margin-bottom:6px;}
+.earned{font-size:32px;font-weight:900;color:var(--c2);margin:8px 0;}
+.result-tip{color:var(--muted);font-size:13px;font-weight:700;
+  background:#F7F9FF;border-radius:12px;padding:10px 14px;margin:10px 0 16px;line-height:1.5;}
+
+/* LIMIT BANNER */
+.limit-ban{background:linear-gradient(135deg,var(--c6),var(--c1));border-radius:var(--r);
+  padding:14px 18px;color:white;font-weight:800;font-size:14px;text-align:center;
+  margin-bottom:12px;display:none;box-shadow:0 6px 20px rgba(255,107,107,0.35);}
+.limit-ban.show{display:block;animation:bounceIn .4s ease;}
+
+/* SHOP */
+.shop-bal{background:linear-gradient(135deg,var(--c2),#F0B400);border-radius:16px;
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;box-shadow:0 6px 20px rgba(255,217,61,0.4);}
+.shop-bal .sbal-label{font-size:13px;font-weight:800;color:#5A3E00;opacity:.8;}
+.shop-bal .sbal-val{font-size:28px;font-weight:900;color:#5A3E00;}
+
+.shop-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.stab{background:var(--card);border:2px solid #EEF0FF;border-radius:30px;
+  padding:8px 18px;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;
+  cursor:pointer;transition:all .15s;color:var(--muted);}
+.stab.active{background:var(--c1);color:white;border-color:var(--c1);}
+
+.shop-list{display:flex;flex-direction:column;gap:12px;}
+.sitem{background:var(--card);border-radius:var(--r);padding:16px;
+  box-shadow:var(--sh);display:flex;align-items:center;gap:14px;transition:transform .18s;}
+.sitem:hover{transform:translateY(-3px);}
+.sitem-icon{width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+  font-size:34px;flex-shrink:0;}
+.sitem-info{flex:1;}
+.sitem-info h4{font-size:15px;font-weight:900;margin-bottom:3px;}
+.sitem-info p{font-size:12px;color:var(--muted);font-weight:700;}
+.price-tag{font-size:13px;font-weight:900;color:var(--c2);display:flex;align-items:center;gap:3px;margin-top:5px;}
+.btn-buy{background:linear-gradient(135deg,var(--c2),#F0B400);color:#5A3E00;
+  border:none;border-radius:50px;padding:10px 18px;font-size:13px;font-weight:900;
+  font-family:'Nunito',sans-serif;cursor:pointer;transition:transform .15s;white-space:nowrap;}
+.btn-buy:hover{transform:scale(1.06);}
+.btn-buy:disabled{background:#E0E0E0;color:#AAA;cursor:not-allowed;}
+.btn-buy.owned{background:linear-gradient(135deg,var(--c3),#4CAF50);color:white;}
+.btn-buy.equipped{background:linear-gradient(135deg,var(--c4),#2BB5B0);color:white;}
+
+/* REWARD ITEM */
+.reward-card{background:linear-gradient(135deg,#1A1A2E,#16213E);border-radius:var(--r);
+  padding:20px;display:flex;align-items:center;gap:14px;
+  box-shadow:0 8px 32px rgba(26,26,46,0.35);position:relative;overflow:hidden;}
+.reward-card::before{content:'🌟';position:absolute;font-size:80px;opacity:.06;right:-10px;top:-10px;}
+.reward-card .sitem-info h4{color:white;}
+.reward-card .sitem-info p{color:rgba(255,255,255,.6);}
+.reward-card .price-tag{color:var(--c2);}
+.btn-reward{background:linear-gradient(135deg,var(--c2),var(--c6));color:#5A3E00;
+  border:none;border-radius:50px;padding:10px 16px;font-size:13px;font-weight:900;
+  font-family:'Nunito',sans-serif;cursor:pointer;transition:transform .15s;white-space:nowrap;}
+.btn-reward:hover{transform:scale(1.06);}
+.btn-reward:disabled{background:#555;color:#888;cursor:not-allowed;}
+
+/* EMAIL MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);
+  display:none;align-items:center;justify-content:center;z-index:500;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal{background:white;border-radius:var(--r);padding:28px;width:100%;max-width:380px;
+  animation:bounceIn .35s ease;}
+.modal h3{font-size:22px;font-weight:900;margin-bottom:8px;text-align:center;}
+.modal p{color:var(--muted);font-size:14px;font-weight:700;text-align:center;margin-bottom:18px;}
+.modal input{width:100%;border:2.5px solid #EEF0FF;border-radius:14px;padding:14px 16px;
+  font-size:15px;font-weight:700;font-family:'Nunito',sans-serif;outline:none;
+  transition:border-color .15s;margin-bottom:12px;}
+.modal input:focus{border-color:var(--c4);}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns .btn{flex:1;justify-content:center;}
+.modal .reward-big{text-align:center;font-size:50px;margin-bottom:8px;}
+.voucher-display{background:linear-gradient(135deg,#1A1A2E,#16213E);color:white;
+  border-radius:14px;padding:16px;text-align:center;margin:12px 0;}
+.voucher-display .vc{font-size:22px;font-weight:900;letter-spacing:2px;color:var(--c2);margin:6px 0;}
+.voucher-display p{font-size:12px;opacity:.7;font-weight:700;}
+
+/* ACHIEVEMENTS */
+.ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ach-card{background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--sh);text-align:center;
+  border:2px solid transparent;transition:transform .18s;}
+.ach-card:hover{transform:translateY(-3px);}
+.ach-card.unlocked{border-color:var(--c2);background:linear-gradient(135deg,#FFFBEA,#FFF5C0);}
+.ach-card.locked{filter:grayscale(70%);opacity:.65;}
+.ach-card .ai{font-size:36px;margin-bottom:6px;}
+.ach-card .at{font-size:12px;font-weight:900;color:var(--text);}
+.ach-card .ad{font-size:11px;color:var(--muted);font-weight:700;margin-top:3px;}
+.ach-card .ab{font-size:11px;font-weight:900;color:var(--c6);margin-top:4px;}
+
+/* LEADERBOARD */
+.lb-list{display:flex;flex-direction:column;gap:8px;}
+.lb-item{background:var(--card);border-radius:16px;padding:12px 16px;
+  display:flex;align-items:center;gap:12px;box-shadow:var(--sh);}
+.lb-item.me{border:2px solid var(--c4);background:linear-gradient(135deg,#F0FFFF,#E0FFFE);}
+.lb-rank{width:32px;height:32px;border-radius:50%;background:#EEF0FF;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;}
+.lb-rank.gold{background:var(--c2);color:#5A3E00;}
+.lb-rank.silver{background:#C0C0C0;color:white;}
+.lb-rank.bronze{background:#CD7F32;color:white;}
+.lb-av{font-size:28px;flex-shrink:0;}
+.lb-name{flex:1;font-size:14px;font-weight:800;}
+.lb-stars{font-size:15px;font-weight:900;color:var(--c6);}
+
+/* PROFILE */
+.prof-top{background:linear-gradient(135deg,var(--c1),var(--c5));border-radius:var(--r);
+  padding:24px;text-align:center;margin-bottom:14px;
+  box-shadow:0 8px 32px rgba(255,107,107,0.35);color:white;position:relative;overflow:hidden;}
+.prof-top::after{content:'🕵️';position:absolute;font-size:100px;opacity:.07;right:-15px;top:-15px;}
+.prof-av{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.25);
+  display:flex;align-items:center;justify-content:center;font-size:44px;
+  margin:0 auto 8px;border:3px solid rgba(255,255,255,.5);position:relative;}
+.prof-outfit-badge{position:absolute;bottom:-4px;right:-4px;font-size:22px;}
+.prof-top h2{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;margin-bottom:2px;}
+.prof-level{font-size:13px;opacity:.85;font-weight:800;}
+.prof-stars{font-size:38px;font-weight:900;margin:10px 0 2px;}
+.prof-sl{font-size:12px;opacity:.8;font-weight:700;}
+
+.stats-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.stat-c{background:var(--card);border-radius:18px;padding:14px;text-align:center;box-shadow:var(--sh);}
+.stat-c .si{font-size:28px;margin-bottom:4px;}
+.stat-c .sv{font-size:24px;font-weight:900;}
+.stat-c .sl{font-size:11px;color:var(--muted);font-weight:800;margin-top:2px;}
+
+/* AVATAR SELECT */
+.av-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0;}
+.av-opt{background:var(--card);border-radius:16px;padding:12px 8px;text-align:center;
+  cursor:pointer;border:2.5px solid transparent;transition:all .18s;box-shadow:var(--sh);}
+.av-opt:hover{transform:scale(1.08);border-color:var(--c4);}
+.av-opt.sel{border-color:var(--c1);background:rgba(255,107,107,.08);}
+.av-opt .av-em{font-size:34px;margin-bottom:4px;}
+.av-opt .av-nm{font-size:11px;font-weight:800;color:var(--muted);}
+
+/* FLOATING ELEMENTS */
+.star-float{position:fixed;font-size:26px;pointer-events:none;z-index:9999;
+  animation:floatUp 1.2s ease forwards;}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-130px) scale(1.7)}}
+.confetti-p{position:fixed;pointer-events:none;z-index:9999;
+  animation:cFall 1.8s ease forwards;}
+@keyframes cFall{0%{opacity:1;transform:translateY(-10px) rotate(0)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+
+/* TOAST */
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-80px);
+  background:var(--text);color:white;padding:12px 24px;border-radius:30px;
+  font-size:14px;font-weight:800;z-index:600;transition:transform .3s;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* CHAR BUBBlE */
+.char-bubble{display:flex;align-items:flex-start;gap:12px;
+  background:linear-gradient(135deg,#FFF9F0,#FFE8D0);border-radius:18px;
+  padding:14px;margin-bottom:12px;border:2px solid rgba(255,154,60,0.25);}
+.char-face{font-size:42px;flex-shrink:0;}
+.char-text{font-size:14px;font-weight:800;color:var(--text);line-height:1.5;}
+.char-name{font-size:11px;font-weight:900;color:var(--c6);margin-bottom:4px;}
+
+/* DAILY QUIZ SPECIAL */
+.daily-quiz-banner{background:linear-gradient(135deg,var(--c5),var(--c1));
+  border-radius:var(--r);padding:18px;text-align:center;color:white;
+  margin-bottom:14px;position:relative;overflow:hidden;cursor:pointer;
+  box-shadow:0 8px 28px rgba(168,85,247,0.4);transition:transform .18s;}
+.daily-quiz-banner:hover{transform:translateY(-3px);}
+.daily-quiz-banner::before{content:'🌟';position:absolute;font-size:80px;opacity:.1;right:-10px;top:-10px;}
+.daily-quiz-banner h3{font-size:18px;font-weight:900;margin-bottom:4px;}
+.daily-quiz-banner p{font-size:13px;opacity:.85;font-weight:700;}
+.daily-done-tag{background:rgba(255,255,255,.25);border-radius:30px;
+  padding:4px 12px;font-size:12px;font-weight:900;display:inline-block;margin-top:8px;}
+
+/* INPUT style */
+.inp{width:100%;border:2.5px solid #EEF0FF;border-radius:14px;padding:13px 16px;
+  font-size:14px;font-weight:700;font-family:'Nunito',sans-serif;outline:none;
+  transition:border-color .15s;background:#FAFBFF;}
+.inp:focus{border-color:var(--c4);}
+
+/* WEEK TABS */
+.week-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;}
+.week-tabs::-webkit-scrollbar{display:none;}
+.wtab{background:var(--card);border:2px solid #EEF0FF;border-radius:30px;
+  padding:7px 16px;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;
+  cursor:pointer;transition:all .15s;color:var(--muted);white-space:nowrap;flex-shrink:0;}
+.wtab.active{background:var(--c5);color:white;border-color:var(--c5);}
+
+@media(max-width:380px){
+  .quiz-grid{grid-template-columns:1fr;}
+  .ach-grid{grid-template-columns:1fr;}
+  .av-grid{grid-template-columns:repeat(3,1fr);}
+}
+
+/* ===================== LOGIN OVERLAY ===================== */
+.auth-overlay{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,rgba(255,107,107,0.18) 0%,rgba(78,205,196,0.18) 100%),var(--bg);
+  padding:20px;}
+.auth-overlay.hidden{display:none;}
+.auth-box{background:#fff;border-radius:28px;box-shadow:0 24px 64px rgba(0,0,0,0.16);
+  width:100%;max-width:400px;padding:32px 28px;animation:bounceIn .4s cubic-bezier(.4,2,.6,1);}
+.auth-logo{font-family:'Baloo 2',cursive;font-size:30px;font-weight:800;text-align:center;margin-bottom:4px;
+  background:linear-gradient(135deg,var(--c1),var(--c6));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.auth-sub{text-align:center;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:22px;}
+.auth-tabs{display:flex;background:#EEF2FF;border-radius:50px;padding:4px;margin-bottom:24px;}
+.auth-tab{flex:1;border:none;border-radius:50px;padding:10px;font-size:14px;font-weight:900;
+  font-family:'Nunito',sans-serif;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted);}
+.auth-tab.active{background:linear-gradient(135deg,var(--c1),#e84545);color:#fff;
+  box-shadow:0 4px 14px rgba(255,107,107,0.45);}
+.auth-field{margin-bottom:14px;}
+.auth-field label{font-size:12px;font-weight:900;color:var(--muted);display:block;margin-bottom:5px;padding-left:4px;}
+.auth-field input{width:100%;border:2.5px solid #EEF0FF;border-radius:16px;padding:13px 16px;
+  font-size:14px;font-weight:700;font-family:'Nunito',sans-serif;outline:none;
+  transition:border-color .15s;background:#FAFBFF;color:var(--text);}
+.auth-field input:focus{border-color:var(--c4);}
+.auth-err{color:var(--c1);font-size:12px;font-weight:800;margin-bottom:12px;
+  background:#FFF5F5;border-radius:10px;padding:8px 12px;display:none;}
+.auth-err.show{display:block;}
+.auth-ok{color:var(--c3);font-size:12px;font-weight:800;margin-bottom:12px;
+  background:#F0FFF4;border-radius:10px;padding:8px 12px;display:none;}
+.auth-ok.show{display:block;}
+.btn-auth{width:100%;border:none;border-radius:50px;padding:15px;font-size:16px;font-weight:900;
+  font-family:'Nunito',sans-serif;cursor:pointer;transition:transform .15s,box-shadow .15s;
+  background:linear-gradient(135deg,var(--c1),#e84545);color:#fff;
+  box-shadow:0 8px 24px rgba(255,107,107,0.45);margin-top:4px;}
+.btn-auth:hover{transform:translateY(-3px);}
+.btn-auth:active{transform:scale(0.96);}
+.auth-mascot{text-align:center;font-size:56px;margin-bottom:8px;animation:float 3s ease-in-out infinite;}
+
+/* LANGUAGE SELECTOR */
+.lang-select{display:flex;gap:8px;justify-content:center;margin-bottom:18px;}
+.lang-btn{background:#EEF2FF;border:2.5px solid transparent;border-radius:14px;
+  padding:8px 14px;font-size:18px;cursor:pointer;transition:all .18s;font-family:'Nunito',sans-serif;
+  font-weight:800;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;}
+.lang-btn span{font-size:10px;font-weight:900;}
+.lang-btn.active{border-color:var(--c1);background:rgba(255,107,107,0.10);color:var(--c1);}
+.lang-btn:hover{transform:scale(1.08);}
+
+.btn-logout{background:linear-gradient(135deg,#EEF0FF,#E0E4FF);color:var(--muted);border:none;
+  border-radius:50px;padding:8px 18px;font-size:12px;font-weight:900;font-family:'Nunito',sans-serif;
+  cursor:pointer;transition:transform .15s;display:flex;align-items:center;gap:5px;}
+.btn-logout:hover{transform:scale(1.05);background:linear-gradient(135deg,#FFE0E0,#FFC8C8);color:var(--c1);}
+</style>
+</head>
+<body>
+<div class="auth-overlay hidden" id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-mascot">🕵️</div>
+    <div class="auth-logo">FakeBusters</div>
+    <div class="auth-sub" id="auth-sub-text">Detectează fake news-ul! Intră în cont.</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')" data-i18n="login_tab">🔑 Login</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')" data-i18n="signup_tab">✨ Cont nou</button>
+    </div>
+    <div id="auth-err" class="auth-err"></div>
+    <div id="auth-ok" class="auth-ok"></div>
+    <div class="auth-field">
+      <label id="lbl-email">📧 Email</label>
+      <input type="email" id="auth-email" placeholder="email@exemplu.com" autocomplete="email" />
+    </div>
+    <div class="auth-field">
+      <label id="lbl-pass">🔒 Parolă</label>
+      <input type="password" id="auth-pass" placeholder="Minim 4 caractere" autocomplete="current-password" />
+    </div>
+    <div id="lang-field" style="display:none;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:900;color:var(--muted);margin-bottom:8px;padding-left:4px" id="lbl-lang">🌐 Alege limba</div>
+      <div class="lang-select">
+        <button class="lang-btn active" id="lang-ro" onclick="selectLang('ro')">🇷🇴<span>Română</span></button>
+        <button class="lang-btn" id="lang-en" onclick="selectLang('en')">🇬🇧<span>English</span></button>
+        <button class="lang-btn" id="lang-ru" onclick="selectLang('ru')">🇷🇺<span>Русский</span></button>
+      </div>
+    </div>
+    <button class="btn-auth" id="auth-submit-btn" onclick="submitAuth()">🔑 Intră în cont</button>
+  </div>
+</div>
+
+<div class="app">
+
+<!-- ===== HOME ===== -->
+<div class="screen active" id="sc-home">
+  <div class="topbar">
+    <div class="logo">FakeBusters 🕵️</div>
+    <div class="star-pill" onclick="navTo('sc-profile',document.querySelectorAll('.nb')[4])">
+      ⭐ <span id="h-stars">0</span>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="mascot-wrap">
+      <div class="mascot-bg avatar-display" id="hero-mascot">
+        <span id="hero-av-em">🕵️</span>
+        <span class="avatar-outfit" id="hero-outfit"></span>
+      </div>
+    </div>
+    <h1>Salut, Detectiv! 🔍</h1>
+    <p>Ajută-i pe prieteni să recunoască Fake News!</p>
+    <button class="btn btn-primary" onclick="navTo('sc-quizlist',document.querySelectorAll('.nb')[1])">🎮 Începe misiunea!</button>
+  </div>
+
+  <div class="streak-row">
+    <div class="streak-fire">🔥</div>
+    <div class="streak-info">
+      <h3><span id="h-streak">0</span> zile la rând!</h3>
+      <p id="streak-sub">Joacă azi să menții streak-ul!</p>
+    </div>
+  </div>
+
+  <div id="daily-quiz-home"></div>
+
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:14px;font-weight:900">⭐ Stele azi</span>
+      <span id="h-today-stars" style="font-size:14px;font-weight:900;color:var(--c6)">0 / 100</span>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="h-prog" style="width:0%"></div></div>
+    <div style="font-size:12px;color:var(--muted);font-weight:700;margin-top:4px" id="h-prog-msg">Joacă quiz-uri pentru a câștiga stele!</div>
+  </div>
+
+  <div class="sec-title">🏆 Top detectivi</div>
+  <div class="lb-list" id="home-lb"></div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- ===== QUIZ LIST ===== -->
+<div class="screen" id="sc-quizlist">
+  <div class="topbar">
+    <div class="logo" style="font-size:20px">🎯 Misiuni</div>
+    <div class="star-pill">⭐ <span id="ql-stars">0</span></div>
+  </div>
+
+  <div id="limit-ban" class="limit-ban">
+    <div style="font-size:24px;margin-bottom:4px">⏰</div>
+    Ai atins limita de 100 ⭐ azi! Revino mâine! 🌙
+  </div>
+
+  <div id="daily-quiz-list"></div>
+  <div class="quiz-grid" id="quiz-grid"></div>
+</div>
+
+<!-- ===== QUIZ PLAY ===== -->
+<div class="screen" id="sc-play">
+  <div class="qheader">
+    <button class="back-btn" id="play-back">←</button>
+    <h2 id="play-title">Quiz</h2>
+    <div class="star-pill" style="font-size:13px">⭐ <span id="play-stars">0</span></div>
+  </div>
+
+  <div id="char-intro" class="char-bubble" style="display:none">
+    <div class="char-face" id="char-face">🐝</div>
+    <div>
+      <div class="char-name" id="char-name">Albina Bella</div>
+      <div class="char-text" id="char-msg">Are nevoie de ajutorul tău!</div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-area" id="play-media">
+      <div class="news-bubble" id="play-news"></div>
+    </div>
+    <div class="q-text" id="play-q"></div>
+  </div>
+
+  <div class="answers" id="play-answers"></div>
+
+  <div class="result-box" id="result-box">
+    <div class="result-emoji" id="res-emoji"></div>
+    <h3 id="res-title"></h3>
+    <div class="earned" id="res-earned"></div>
+    <div class="result-tip" id="res-tip"></div>
+    <button class="btn btn-green btn-full" onclick="afterQuiz()">Continuă ➡️</button>
+  </div>
+</div>
+
+<!-- ===== SHOP ===== -->
+<div class="screen" id="sc-shop">
+  <div class="topbar">
+    <div class="logo" style="font-size:20px">🛒 Magazin</div>
+  </div>
+  <div class="shop-bal">
+    <div><div class="sbal-label">Stele disponibile</div><div class="sbal-val">⭐ <span id="sh-bal">0</span></div></div>
+    <div style="font-size:36px">🛍️</div>
+  </div>
+  <div class="shop-tabs">
+    <button class="stab active" onclick="shopTab('items',this)">🎒 Iteme</button>
+    <button class="stab" onclick="shopTab('outfits',this)">👕 Haine</button>
+    <button class="stab" onclick="shopTab('rewards',this)">🎁 Premii</button>
+  </div>
+  <div class="shop-list" id="shop-list"></div>
+</div>
+
+<!-- ===== ACHIEVEMENTS ===== -->
+<div class="screen" id="sc-ach">
+  <div class="topbar">
+    <div class="logo" style="font-size:20px">🏅 Realizări</div>
+    <div class="star-pill">⭐ <span id="ac-stars">0</span></div>
+  </div>
+  <div class="ach-grid" id="ach-grid"></div>
+</div>
+
+<!-- ===== PROFILE ===== -->
+<div class="screen" id="sc-profile">
+  <div class="topbar">
+    <div class="logo" style="font-size:20px">👤 Profilul meu</div>
+    <button class="btn-logout" onclick="doLogout()">🚪 Logout</button>
+  </div>
+  <div class="prof-top">
+    <div class="prof-av" id="prof-av-wrap">
+      <span id="prof-av-em">🕵️</span>
+      <span class="prof-outfit-badge" id="prof-outfit-badge"></span>
+    </div>
+    <h2>Detectiv FakeBuster</h2>
+    <div class="prof-level" id="prof-level">Nivel 1 · Novice 🌱</div>
+    <div class="prof-stars">⭐ <span id="prof-stars">0</span></div>
+    <div class="prof-sl">stele totale</div>
+  </div>
+
+  <div class="stats-g">
+    <div class="stat-c"><div class="si">✅</div><div class="sv" id="ps-correct">0</div><div class="sl">Răspunsuri corecte</div></div>
+    <div class="stat-c"><div class="si">🎮</div><div class="sv" id="ps-played">0</div><div class="sl">Quiz-uri jucate</div></div>
+    <div class="stat-c"><div class="si">🔥</div><div class="sv" id="ps-streak">0</div><div class="sl">Streak curent</div></div>
+    <div class="stat-c"><div class="si">🏆</div><div class="sv" id="ps-best">0</div><div class="sl">Best streak</div></div>
+  </div>
+
+  <div class="sec-title">🧑 Alege avatar</div>
+  <div class="av-grid" id="av-grid"></div>
+
+  <div class="sec-title">🏅 Realizări recente</div>
+  <div class="ach-grid" id="prof-ach"></div>
+  <div style="height:8px"></div>
+</div>
+
+</div><!-- end .app -->
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="nb active" onclick="navTo('sc-home',this)"><span class="ni">🏠</span>Acasă</button>
+  <button class="nb" onclick="navTo('sc-quizlist',this)"><span class="ni">🎯</span>Misiuni</button>
+  <button class="nb" onclick="navTo('sc-shop',this)"><span class="ni">🛒</span>Shop</button>
+  <button class="nb" onclick="navTo('sc-ach',this)"><span class="ni">🏅</span>Premii</button>
+  <button class="nb" onclick="navTo('sc-profile',this)"><span class="ni">👤</span>Profil</button>
+</nav>
+
+<!-- EMAIL MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== QUIZ DATA (21 DAYS) =====================
+const CHARS = [
+  {name:'Albina Bella 🐝',face:'🐝',msg:'Are nevoie de ajutorul tău să depisteze fake news-ul!'},
+  {name:'Vulpița Viorel 🦊',face:'🦊',msg:'Vulpița a găsit ceva suspect! Ajut-o să verifice!'},
+  {name:'Robotelul Rex 🤖',face:'🤖',msg:'Rex analizează știrea, dar are nevoie de tine!'},
+  {name:'Broasca Broscuța 🐸',face:'🐸',msg:'Broscuța a citit asta pe net. E adevărat?'},
+  {name:'Ursulețul Ursu 🐻',face:'🐻',msg:'Ursu a primit asta pe WhatsApp. Ce crezi?'},
+  {name:'Pisicuța Mia 🐱',face:'🐱',msg:'Mia a văzut asta online și e confuză. Ajut-o!'},
+];
+
+const QUIZZES_DATA = [
+  // WEEK 1
+  {id:'w1d1',week:1,title:'Extratereștrii au aterizat!',icon:'👽',color:'#C77DFF',
+   char:0,news:'"URGENT!!! Extratereștrii au aterizat în București azi-noapte! Autoritățile au confirmat contactul alien!"',
+   src:'știri-șoc24.ro',
+   q:'De ce este această știre probabil falsă?',
+   answers:[
+    {t:'Extratereștrii nu există deloc',c:false},
+    {t:'Sursa e necunoscută și cuvintele sunt dramatice fără dovezi',c:true},
+    {t:'A fost scrisă noaptea',c:false},
+    {t:'Are prea multe semne de exclamare',c:false},
+   ],
+   tip:'Știrile false folosesc MAJUSCULE și surse necunoscute. Verifică mereu pe surse oficiale! 🔍'},
+  {id:'w1d2',week:1,title:'Ciocolata vindecă boli',icon:'🍫',color:'#FF9A3C',
+   char:1,news:'"Oamenii de știință au dovedit că 10 tablete de ciocolată pe zi vindecă ORICE boală în 3 zile!"',
+   src:'sănătate-miracol.net',
+   q:'Ce semnal de alarmă îți arată că e fake news?',
+   answers:[
+    {t:'Ciocolata nu e sănătoasă',c:false},
+    {t:'Promisiunea "vindecă orice" fără studii reale',c:true},
+    {t:'Știrile medicale sunt toate false',c:false},
+    {t:'Numărul 10 e prea mare',c:false},
+   ],
+   tip:'„Vindecă orice" sau „100% garantat" sunt semne clare de fake! Caută studii reale! 🏥'},
+  {id:'w1d3',week:1,title:'Poza trucată',icon:'📸',color:'#6BCB77',
+   char:2,news:'"Această fotografie dovedește că Turnul Eiffel s-a prăbușit în urmă cu 5 minute!"',
+   src:'distribuie-rapid.com',
+   q:'Cum verifici dacă o fotografie e reală?',
+   answers:[
+    {t:'O crezi dacă are multe share-uri',c:false},
+    {t:'Cauți știrea pe surse oficiale de știri',c:true},
+    {t:'Dacă e colorată, e reală',c:false},
+    {t:'Distribui rapid ca toți să știe',c:false},
+   ],
+   tip:'Fotografiile pot fi editate ușor! Caută pe Google știrea cu cuvinte cheie! 🕵️'},
+  {id:'w1d4',week:1,title:'Concursul fals',icon:'🏆',color:'#FF6B6B',
+   char:3,news:'"🎉 Ai CÂȘTIGAT un iPhone 16! Dai click ACUM și introduci datele pentru a-l primi!"',
+   src:'premii-instant.biz',
+   q:'Ce trebuie să faci când primești un astfel de mesaj?',
+   answers:[
+    {t:'Dai click rapid să nu pierzi premiul',c:false},
+    {t:'Îl trimiți la prieteni să câștige și ei',c:false},
+    {t:'Îl ignori și spui unui adult de încredere',c:true},
+    {t:'Introduci datele să vezi ce se întâmplă',c:false},
+   ],
+   tip:'Nu câștigi niciodată ceva pe care nu l-ai cerut! Acestea sunt escrocherii. Spune unui adult! 👨‍👩‍👧'},
+  {id:'w1d5',week:1,title:'Expertul inventat',icon:'👨‍⚕️',color:'#4ECDC4',
+   char:4,news:'"Dr. XYZ, expert mondial, spune că apa caldă îți poate dubla inteligența dacă o bei noaptea!"',
+   src:'adevărul-ascuns.ro',
+   q:'Care e primul lucru pe care trebuie să-l verifici?',
+   answers:[
+    {t:'Dacă doctorul are un nume',c:false},
+    {t:'Dacă sursa e o organizație medicală oficială',c:true},
+    {t:'Dacă știrea are poze colorate',c:false},
+    {t:'Câte like-uri are postarea',c:false},
+   ],
+   tip:'Surse de încredere: OMS, ministerele oficiale. Un "expert" necunoscut nu e sursă! 🏥'},
+  {id:'w1d6',week:1,title:'Titlul înșelător',icon:'📰',color:'#FFD93D',
+   char:5,news:'"BREAKING: Profesorii din toată România intră în grevă MÂINE! Școlile se închid!"',
+   src:'știri-senzaționale.ro',
+   q:'Cum îți dai seama că titlul e exagerat?',
+   answers:[
+    {t:'Folosește cuvântul BREAKING fără link la sursă oficială',c:true},
+    {t:'E scris cu litere mari',c:false},
+    {t:'Vorbește despre profesori',c:false},
+    {t:'Titlul e prea lung',c:false},
+   ],
+   tip:'Titlurile șoc fără link la sursă oficială sunt adesea false. Verifică pe site-urile oficiale! 📰'},
+  {id:'w1d7',week:1,title:'Complotul secret',icon:'🔮',color:'#A855F7',
+   char:0,news:'"Guvernul ascunde că există un vaccin care transformă oamenii în zombie! Un om de știință a divulgat secretul!"',
+   src:'adevăruri-ascunse-șoc.net',
+   q:'Ce te face să nu crezi această știre?',
+   answers:[
+    {t:'Vaccinurile sunt mereu rele',c:false},
+    {t:'Afirmații extreme fără dovezi = semn de conspirație falsă',c:true},
+    {t:'Guvernele nu pot ascunde secrete',c:false},
+    {t:'Zombie nu există în știință',c:false},
+   ],
+   tip:'Teoriile conspirației fac afirmații extreme fără dovezi verificabile. Gândește critic! 🧠'},
+  // WEEK 2
+  {id:'w2d1',week:2,title:'Statistici inventate',icon:'📊',color:'#FF6B6B',
+   char:1,news:'"99% dintre copii care folosesc telefoanele devin dependenți în 2 săptămâni, conform unui studiu din 2024!"',
+   src:'studii-șoc.net',
+   q:'Ce trebuie să verifici la o statistică?',
+   answers:[
+    {t:'Dacă numărul e rotund',c:false},
+    {t:'Dacă studiul are link la sursă credibilă',c:true},
+    {t:'Dacă a fost publicat recent',c:false},
+    {t:'Dacă 99% pare corect',c:false},
+   ],
+   tip:'Cere mereu sursa studiului! Statisticile fără referință pot fi inventate! 📊'},
+  {id:'w2d2',week:2,title:'Contul fals',icon:'👤',color:'#4ECDC4',
+   char:2,news:'"@PresedinteleRo: Am decis că vacanța de vară va fi de 6 luni începând cu acest an!"',
+   src:'Twitter/X - cont neconfirmat',
+   q:'Cum verifici dacă un cont e oficial?',
+   answers:[
+    {t:'Are mulți urmăritori',c:false},
+    {t:'Postează lucruri interesante',c:false},
+    {t:'Caută bifă verificată și site-ul oficial al persoanei',c:true},
+    {t:'Are poze de profil',c:false},
+   ],
+   tip:'Persoanele oficiale au bifă de verificare sau poți confirma pe site-ul lor oficial! ✅'},
+  {id:'w2d3',week:2,title:'Mailul de phishing',icon:'📧',color:'#FFD93D',
+   char:3,news:'"Dragă utilizator, contul tău bancar va fi BLOCAT în 24h! Click URGENT pe linkul de mai jos pentru verificare!"',
+   src:'email de la bancă@gmail.com',
+   q:'Ce e greșit în acest email?',
+   answers:[
+    {t:'E prea scurt',c:false},
+    {t:'Băncile oficiale nu trimit emailuri de la Gmail',c:true},
+    {t:'Conturile se blochează uneori',c:false},
+    {t:'Are cuvântul URGENT',c:false},
+   ],
+   tip:'Băncile au emailuri oficiale @banca.ro, nu @gmail.com! Nu da niciodată click pe linkuri suspecte! 🏦'},
+  {id:'w2d4',week:2,title:'Remediul miraculos',icon:'🌿',color:'#6BCB77',
+   char:4,news:'"Această plantă din Amazonia vindecă cancerul în 10 zile! Medicii nu vor să știi! Cumpără acum!"',
+   src:'plante-miraculoase.ro',
+   q:'De ce e periculoasă această afirmație?',
+   answers:[
+    {t:'Plantele nu sunt niciodată medicinale',c:false},
+    {t:'"Medicii nu vor să știi" și vindecarea rapidă sunt minciuni periculoase',c:true},
+    {t:'Amazonia e prea departe',c:false},
+    {t:'Cancerul nu se poate vindeca',c:false},
+   ],
+   tip:'Produsele care promit vindecarea cancerului rapid sunt periculoase și false! Consultați medicul! ⚕️'},
+  {id:'w2d5',week:2,title:'Citatul fals',icon:'💬',color:'#A855F7',
+   char:5,news:'"Albert Einstein a spus: Smartphone-urile sunt mai dăunătoare decât bombele nucleare!"',
+   src:'citate-celebre-șoc.com',
+   q:'De ce e acest citat probabil fals?',
+   answers:[
+    {t:'Einstein nu a existat',c:false},
+    {t:'Smartphone-urile nu existau pe vremea lui Einstein',c:true},
+    {t:'Bombele nucleare nu sunt dăunătoare',c:false},
+    {t:'Citatul e prea lung',c:false},
+   ],
+   tip:'Einstein a murit în 1955 - cu decenii înainte de smartphone-uri! Verifică contextul istoric! 📚'},
+  {id:'w2d6',week:2,title:'Prietenul tău a trimis',icon:'📱',color:'#FF9A3C',
+   char:0,news:'"Prietenul tău cel mai bun îți trimite: Trimite asta la 10 prieteni și vei primi 500 lei de la WhatsApp!"',
+   src:'WhatsApp forward',
+   q:'De ce nu trebuie să trimiți mai departe?',
+   answers:[
+    {t:'Prietenii nu trebuie ajutați',c:false},
+    {t:'WhatsApp nu dă bani prin forward-uri. E un lanț de mesaje fals',c:true},
+    {t:'500 lei e prea puțin',c:false},
+    {t:'Trebuie trimiși la mai mulți de 10',c:false},
+   ],
+   tip:'Lanțurile de mesaje sunt mereu false! Nu le trimite mai departe, chiar dacă vine de la prieteni! 💬'},
+  {id:'w2d7',week:2,title:'Harta falsă',icon:'🗺️',color:'#4ECDC4',
+   char:1,news:'"Conform acestei hărți, România va fi inundată complet în 3 zile din cauza topirii ghețarilor!"',
+   src:'apocalipsa-acum.ro',
+   q:'Cum verifici o știre despre dezastre naturale?',
+   answers:[
+    {t:'Crezi harta dacă e colorată',c:false},
+    {t:'Verifici pe site-ul Serviciului Meteorologic Național',c:true},
+    {t:'Întrebi prietenii dacă au auzit',c:false},
+    {t:'Cauți pe TikTok',c:false},
+   ],
+   tip:'Pentru informații despre timp și dezastre, accesează meteoromania.ro sau ANM.ro! 🌤️'},
+  // WEEK 3
+  {id:'w3d1',week:3,title:'Produsul minune',icon:'✨',color:'#FFD93D',
+   char:2,news:'"Această cremă îți face părul să crească 10 cm în 24 de ore! Garantat 100% natural!"',
+   src:'produse-minune.shop',
+   q:'Ce te face să nu crezi promisiunea?',
+   answers:[
+    {t:'Crema nu e naturală',c:false},
+    {t:'Rezultate fizice imposibile în timp scurt = fake',c:true},
+    {t:'Părul nu crește',c:false},
+    {t:'Nu ai nevoie de cremă',c:false},
+   ],
+   tip:'Rezultatele biologice imposibile sunt semne de publicitate înșelătoare! Nu cumpăra! 🛑'},
+  {id:'w3d2',week:3,title:'Celebrul aprobă',icon:'⭐',color:'#FF6B6B',
+   char:3,news:'"Ronaldo folosește această pastă de dinți și i-au crescut dinți noi! Cumpără și tu!"',
+   src:'dinti-noi-rapid.ro',
+   q:'De ce nu trebuie să crezi acest tip de reclamă?',
+   answers:[
+    {t:'Ronaldo nu are dinți',c:false},
+    {t:'Vedete folosite fals în reclame fără acordul lor',c:true},
+    {t:'Pastele de dinți sunt periculoase',c:false},
+    {t:'Dinții nu cresc la adulți',c:false},
+   ],
+   tip:'Mulți escroci folosesc imagini cu celebrități fără acordul lor! Verifică sursa oficială! 🌟'},
+  {id:'w3d3',week:3,title:'Grupul secret',icon:'🔒',color:'#A855F7',
+   char:4,news:'"Intră în grupul secret VIP pe Telegram! Plătești 50 lei și primești 500 lei zilnic garantat!"',
+   src:'Telegram - grup anonim',
+   q:'Ce e greșit cu această ofertă?',
+   answers:[
+    {t:'Telegram e o aplicație periculoasă',c:false},
+    {t:'Nicio investiție legitimă nu garantează profit zilnic fix',c:true},
+    {t:'50 lei e prea mult',c:false},
+    {t:'Grupurile VIP nu există',c:false},
+   ],
+   tip:'"Profit garantat zilnic" = fraudă! Nu trimite niciodată bani online fără să ceri sfatul unui adult! 💰'},
+  {id:'w3d4',week:3,title:'Știrea fără dată',icon:'📅',color:'#6BCB77',
+   char:5,news:'"Cutremur MASIV în România! Oamenii sunt rugați să evacueze imediat!"',
+   src:'știri-vechi-recirculate.ro',
+   q:'Ce informație crucială lipsește din această știre?',
+   answers:[
+    {t:'Locul cutremurului',c:false},
+    {t:'Data și ora - știrile vechi sunt recirculate ca actuale',c:true},
+    {t:'Mărimea cutremurului',c:false},
+    {t:'Numele autorului',c:false},
+   ],
+   tip:'Verifică ÎNTOTDEAUNA data unei știri! Știrile vechi sunt recirculate pentru senzație! 📅'},
+  {id:'w3d5',week:3,title:'Aplicația periculoasă',icon:'📲',color:'#FF9A3C',
+   char:0,news:'"Descarcă aplicația GRATUIT și câștigă Robux nelimitați! Ai nevoie doar de parola Roblox!"',
+   src:'robux-free-generator.com',
+   q:'De ce NU trebuie să îți dai parola?',
+   answers:[
+    {t:'Robux sunt scumpi',c:false},
+    {t:'Niciodată nu dai parola pe site-uri terțe - îți vor fura contul',c:true},
+    {t:'Aplicația nu e gratuită',c:false},
+    {t:'Roblox nu dă Robux gratuit',c:false},
+   ],
+   tip:'NICIODATĂ nu îți dai parola pe alte site-uri! Robux gratis = furt de cont! 🔐'},
+  {id:'w3d6',week:3,title:'Imaginea AI',icon:'🤖',color:'#4ECDC4',
+   char:1,news:'"Foto șocantă! Primarul din Cluj a fost văzut dansând pe stradă - fotografia face furori!"',
+   src:'viral-clips-ro.com',
+   q:'Cum îți dai seama că o imagine ar putea fi generată de AI?',
+   answers:[
+    {t:'AI-ul nu poate genera imagini',c:false},
+    {t:'Verifici detalii ciudate (degete, text, umbre) și cauți pe Google Images',c:true},
+    {t:'Dacă e amuzantă, e reală',c:false},
+    {t:'Dacă e postată pe Facebook, e reală',c:false},
+   ],
+   tip:'Imaginile AI au adesea degete deformate, text ciudat sau umbre greșite. Caută pe Google Images! 🔍'},
+  {id:'w3d7',week:3,title:'Recapitulare detectiv',icon:'🎓',color:'#A855F7',
+   char:2,news:'"Un student de 12 ani a câștigat 1 milion de euro jucând un joc online gratuit! Tu poți face la fel!"',
+   src:'câștiguri-online-azi.ro',
+   q:'Câte semne de fake news găsești în această știre?',
+   answers:[
+    {t:'Niciun semn - poate fi adevărat',c:false},
+    {t:'Cel puțin 3: sursă necredibilă, promisiune imposibilă, îndemn la acțiune',c:true},
+    {t:'Un singur semn: vârsta',c:false},
+    {t:'Două semne: suma și vârsta',c:false},
+   ],
+   tip:'Felicitări! Acum știi să recunoști mai multe semne deodată. Ești un adevărat FakeBuster! 🏆'},
+];
+
+const SHOP_ITEMS = [
+  {id:'cape',tab:'outfits',icon:'🦸',name:'Capă de Supererou',desc:'Arată ca un detectiv adevărat!',price:25,color:'#FF6B6B'},
+  {id:'hat',tab:'outfits',icon:'🎩',name:'Pălărie de Detectiv',desc:'Clasic și elegant!',price:30,color:'#4ECDC4'},
+  {id:'glasses',tab:'outfits',icon:'🕶️',name:'Ochelari Misterioși',desc:'Vede prin minciuni!',price:20,color:'#A855F7'},
+  {id:'crown',tab:'outfits',icon:'👑',name:'Coroana Campionului',desc:'Doar pentru cei mai buni!',price:60,color:'#FFD93D'},
+  {id:'shield_b',tab:'items',icon:'🛡️',name:'Scut de Bronz',desc:'Protecție împotriva fake news!',price:15,color:'#CD7F32'},
+  {id:'shield_s',tab:'items',icon:'🥈',name:'Scut de Argint',desc:'Putere dublă anti-fake!',price:35,color:'#C0C0C0'},
+  {id:'shield_g',tab:'items',icon:'🥇',name:'Scut de Aur',desc:'Detectiv de elită!',price:75,color:'#FFD93D'},
+  {id:'badge_d',tab:'items',icon:'🔍',name:'Lupa Magică',desc:'Găsește fake news instant!',price:40,color:'#6BCB77'},
+];
+
+const REWARDS = [
+  {id:'robux_400',tab:'rewards',icon:'🎮',name:'400 Robux Roblox',desc:'Cod digital pentru Roblox!',price:5000,color:'#00B2FF',vouchers:['RBX-FB2024-A1B2','RBX-FB2024-C3D4','RBX-FB2024-E5F6']},
+  {id:'card_10',tab:'rewards',icon:'🎁',name:'Card Cadou Amazon 15$',desc:'Card digital pentru cumpărături!',price:5000,color:'#FF6B6B',vouchers:['CARD-FB-2024-X1Y2','CARD-FB-2024-Z3W4']},
+  {id:'minecraft',tab:'rewards',icon:'⛏️',name:'Minecraft Premium',desc:'Cod activare Minecraft Java!',price:4000,color:'#6BCB77',vouchers:['MC-FB2024-K1L2M3']},
+];
+
+const ACHIEVEMENTS = [
+  {id:'first',icon:'🌟',name:'Prima Misiune',desc:'Completează primul quiz',bonus:5,cond:s=>s.quizzesPlayed>=1},
+  {id:'streak3',icon:'🔥',name:'3 Zile la Rând',desc:'Streak de 3 zile',bonus:10,cond:s=>s.streak>=3},
+  {id:'correct5',icon:'✅',name:'5 Corecte',desc:'5 răspunsuri corecte',bonus:15,cond:s=>s.correctAnswers>=5},
+  {id:'correct10',icon:'🎯',name:'10 Corecte',desc:'10 răspunsuri corecte',bonus:20,cond:s=>s.correctAnswers>=10},
+  {id:'stars50',icon:'⭐',name:'50 Stele',desc:'Adună 50 stele',bonus:10,cond:s=>s.totalStars>=50},
+  {id:'stars100',icon:'💫',name:'100 Stele',desc:'Adună 100 stele',bonus:25,cond:s=>s.totalStars>=100},
+  {id:'week1',icon:'📅',name:'Săptămâna 1',desc:'Completează toate quiz-urile S1',bonus:20,cond:s=>QUIZZES_DATA.filter(q=>q.week===1).every(q=>s.done.includes(q.id))},
+  {id:'streak5',icon:'🏆',name:'5 Zile la Rând!',desc:'Streak bonus 5 zile (+25⭐)',bonus:25,cond:s=>s.streak>=5},
+  {id:'streak7',icon:'👑',name:'O Săptămână!',desc:'7 zile consecutive!',bonus:40,cond:s=>s.streak>=7},
+  {id:'shopper',icon:'🛒',name:'Primul Cumpărător',desc:'Cumpără primul item',bonus:5,cond:s=>s.owned.length>=1},
+  {id:'all21',icon:'🎓',name:'Detectiv Complet!',desc:'Toate 21 quiz-uri completate',bonus:50,cond:s=>s.done.length>=21},
+  {id:'correct20',icon:'🦸',name:'Super Detectiv',desc:'20 răspunsuri corecte',bonus:30,cond:s=>s.correctAnswers>=20},
+];
+
+const AVATARS = [
+  {em:'🕵️',name:'Detectiv'},{em:'🧒',name:'Băiat'},{em:'👧',name:'Fată'},
+  {em:'🦸',name:'Erou'},{em:'🧑‍💻',name:'Hacker'},{em:'🐸',name:'Broscuța'},
+  {em:'🤖',name:'Robot'},{em:'🦊',name:'Vulpe'},{em:'🐝',name:'Albina'},
+  {em:'🦁',name:'Leu'},{em:'🐱',name:'Pisică'},{em:'🐻',name:'Urs'},
+];
+
+// ===================== I18N =====================
+const TRANSLATIONS = {
+  ro: {
+    login_tab:'🔑 Login', signup_tab:'✨ Cont nou',
+    auth_sub_login:'Detectează fake news-ul! Intră în cont.',
+    auth_sub_signup:'Creează-ți contul de detectiv!',
+    lbl_email:'📧 Email', lbl_pass:'🔒 Parolă',
+    lbl_lang:'🌐 Alege limba',
+    auth_btn_login:'🔑 Intră în cont', auth_btn_signup:'✨ Creează cont',
+    err_email:'⚠️ Email invalid!',
+    err_pass:'⚠️ Parola trebuie să aibă minim 4 caractere!',
+    err_exists:'⚠️ Există deja un cont cu acest email!',
+    err_notfound:'⚠️ Email negăsit. Creează un cont nou!',
+    err_wrongpass:'⚠️ Parolă incorectă!',
+    ok_created:'✅ Cont creat! Te logăm automat...',
+    nav_home:'Acasă', nav_missions:'Misiuni', nav_shop:'Shop', nav_prizes:'Premii', nav_profile:'Profil',
+    hero_title:'Salut, Detectiv! 🔍', hero_sub:'Ajută-i pe prieteni să recunoască Fake News!',
+    hero_btn:'🎮 Începe misiunea!',
+    streak_label:' zile la rând!', streak_play:'Joacă azi să menții streak-ul!',
+    streak_on:'🔥 Ziua {n} - Nu opri acum!', streak_start:'Joacă azi pentru a începe streak-ul!',
+    stars_today:'⭐ Stele azi', prog_play:'Câștigă stele completând quiz-uri! ⭐',
+    prog_limit:'🎉 Limita zilnică atinsă! Revino mâine!',
+    top_detectives:'🏆 Top detectivi',
+    missions_title:'🎯 Misiuni',
+    limit_banner:'Ai atins limita de 60 ⭐ azi! Revino mâine! 🌙',
+    daily_label:'📅 QUIZ ZILNIC', daily_sub:'Câștigă 10 stele bonus azi!',
+    daily_done:'✅ Completat azi!', daily_play:'▶️ Joacă acum!',
+    daily_blocked:'Ai trecut deja quiz-ul zilnic azi. Revino după 00:00! ⏰',
+    quiz_locked:'Ai trecut deja acest quiz azi. Revino după 00:00! ⏰',
+    stars_5:'⭐ 5 stele', locked_00:'Blocat până la 00:00',
+    play_continue:'Continuă ➡️',
+    res_correct:'Corect! Super! 🌟', res_wrong:'Greșit! Nu primești stele. 😢',
+    res_limit:'⏰ Limita zilnică atinsă!', res_zero:'0 ⭐ — Răspuns greșit',
+    limit_daily:'Ai atins limita zilnică! Poți vedea rezultatul, dar nu mai câștigi stele. ⏰',
+    streak_bonus:'🔥 {n} zile streak! +{s}⭐ bonus!',
+    shop_title:'🛒 Magazin', shop_available:'Stele disponibile',
+    shop_items:'🎒 Iteme', shop_outfits:'👕 Haine', shop_rewards:'🎁 Premii',
+    shop_buy:'Cumpără', shop_owned:'✅ Deținut', shop_equip:'👕 Echipează', shop_equipped:'✅ Echipat',
+    shop_notstars:'Nu ai suficiente stele! ⭐',
+    shop_bought:'📧 Trimis!', shop_cannotbuy:'',
+    modal_email_label:'Introdu adresa de email pentru a primi codul tău!',
+    modal_email_ph:'email@exemplu.com', modal_confirm:'✅ Confirmă', modal_cancel:'✕ Anulează',
+    modal_email_err:'⚠️ Email invalid!',
+    modal_congrats:'Felicitări!', modal_code_for:'Codul tău pentru',
+    modal_code_label:'Codul tău', modal_sent_to:'Trimis la',
+    modal_save:'Salvează acest cod! Nu va mai putea fi recuperat.',
+    modal_ok:'Super! 🎉',
+    ach_title:'🏅 Realizări', ach_unlocked:'✅ Deblocat!',
+    prof_title:'👤 Profilul meu', prof_logout:'🚪 Logout',
+    prof_detective:'Detectiv FakeBuster', prof_total:'stele totale',
+    prof_correct:'Răspunsuri corecte', prof_played:'Quiz-uri jucate',
+    prof_streak:'Streak curent', prof_best:'Best streak',
+    prof_avatar:'🧑 Alege avatar', prof_recent:'🏅 Realizări recente',
+    prof_noach:'Nicio realizare încă. Joacă quiz-uri! 🎯',
+    ach_toast:'🏅 Realizare: {name}! +{b}⭐',
+    avatar_changed:'Avatar schimbat! ',
+    equipped_msg:' Echipat!', unequipped_msg:'Dezechipat!',
+    item_bought:' cumpărat!',
+    level_novice:'Novice 🌱', level_det:'Detectiv 🔍', level_inv:'Investigator 🕵️',
+    level_exp:'Expert 🎯', level_master:'Master 🏆', level_legend:'Legend 👑',
+    nivel:'Nivel',
+    quizzes_limit:'Ai jucat 10 quiz-uri azi! Revino mâine pentru mai multe! 🌙',
+  },
+  en: {
+    login_tab:'🔑 Login', signup_tab:'✨ New Account',
+    auth_sub_login:'Detect fake news! Sign in to your account.',
+    auth_sub_signup:'Create your detective account!',
+    lbl_email:'📧 Email', lbl_pass:'🔒 Password',
+    lbl_lang:'🌐 Choose language',
+    auth_btn_login:'🔑 Sign In', auth_btn_signup:'✨ Create Account',
+    err_email:'⚠️ Invalid email!',
+    err_pass:'⚠️ Password must be at least 4 characters!',
+    err_exists:'⚠️ An account with this email already exists!',
+    err_notfound:'⚠️ Email not found. Create a new account!',
+    err_wrongpass:'⚠️ Incorrect password!',
+    ok_created:'✅ Account created! Logging you in...',
+    nav_home:'Home', nav_missions:'Missions', nav_shop:'Shop', nav_prizes:'Awards', nav_profile:'Profile',
+    hero_title:'Hello, Detective! 🔍', hero_sub:'Help your friends recognize Fake News!',
+    hero_btn:'🎮 Start mission!',
+    streak_label:' day streak!', streak_play:'Play today to keep your streak!',
+    streak_on:'🔥 Day {n} - Don\'t stop now!', streak_start:'Play today to start your streak!',
+    stars_today:'⭐ Stars today', prog_play:'Earn stars by completing quizzes! ⭐',
+    prog_limit:'🎉 Daily limit reached! Come back tomorrow!',
+    top_detectives:'🏆 Top detectives',
+    missions_title:'🎯 Missions',
+    limit_banner:'You reached the 60 ⭐ daily limit! Come back tomorrow! 🌙',
+    daily_label:'📅 DAILY QUIZ', daily_sub:'Earn 10 bonus stars today!',
+    daily_done:'✅ Completed today!', daily_play:'▶️ Play now!',
+    daily_blocked:'You already completed today\'s daily quiz. Come back after 00:00! ⏰',
+    quiz_locked:'You already completed this quiz today. Come back after 00:00! ⏰',
+    stars_5:'⭐ 5 stars', locked_00:'Locked until 00:00',
+    play_continue:'Continue ➡️',
+    res_correct:'Correct! Great! 🌟', res_wrong:'Wrong! No stars earned. 😢',
+    res_limit:'⏰ Daily limit reached!', res_zero:'0 ⭐ — Wrong answer',
+    limit_daily:'Daily limit reached! You can see the result but won\'t earn stars. ⏰',
+    streak_bonus:'🔥 {n} day streak! +{s}⭐ bonus!',
+    shop_title:'🛒 Shop', shop_available:'Available stars',
+    shop_items:'🎒 Items', shop_outfits:'👕 Outfits', shop_rewards:'🎁 Rewards',
+    shop_buy:'Buy', shop_owned:'✅ Owned', shop_equip:'👕 Equip', shop_equipped:'✅ Equipped',
+    shop_notstars:'Not enough stars! ⭐',
+    shop_bought:'📧 Sent!', shop_cannotbuy:'',
+    modal_email_label:'Enter your email address to receive your code!',
+    modal_email_ph:'email@example.com', modal_confirm:'✅ Confirm', modal_cancel:'✕ Cancel',
+    modal_email_err:'⚠️ Invalid email!',
+    modal_congrats:'Congratulations!', modal_code_for:'Your code for',
+    modal_code_label:'Your code', modal_sent_to:'Sent to',
+    modal_save:'Save this code! It cannot be recovered.',
+    modal_ok:'Awesome! 🎉',
+    ach_title:'🏅 Achievements', ach_unlocked:'✅ Unlocked!',
+    prof_title:'👤 My Profile', prof_logout:'🚪 Logout',
+    prof_detective:'FakeBuster Detective', prof_total:'total stars',
+    prof_correct:'Correct answers', prof_played:'Quizzes played',
+    prof_streak:'Current streak', prof_best:'Best streak',
+    prof_avatar:'🧑 Choose avatar', prof_recent:'🏅 Recent achievements',
+    prof_noach:'No achievements yet. Play quizzes! 🎯',
+    ach_toast:'🏅 Achievement: {name}! +{b}⭐',
+    avatar_changed:'Avatar changed! ',
+    equipped_msg:' Equipped!', unequipped_msg:'Unequipped!',
+    item_bought:' purchased!',
+    level_novice:'Novice 🌱', level_det:'Detective 🔍', level_inv:'Investigator 🕵️',
+    level_exp:'Expert 🎯', level_master:'Master 🏆', level_legend:'Legend 👑',
+    nivel:'Level',
+    quizzes_limit:'You played 10 quizzes today! Come back tomorrow for more! 🌙',
+  },
+  ru: {
+    login_tab:'🔑 Войти', signup_tab:'✨ Регистрация',
+    auth_sub_login:'Разоблачай фейки! Войди в аккаунт.',
+    auth_sub_signup:'Создай аккаунт детектива!',
+    lbl_email:'📧 Email', lbl_pass:'🔒 Пароль',
+    lbl_lang:'🌐 Выбери язык',
+    auth_btn_login:'🔑 Войти', auth_btn_signup:'✨ Создать аккаунт',
+    err_email:'⚠️ Неверный email!',
+    err_pass:'⚠️ Пароль должен содержать минимум 4 символа!',
+    err_exists:'⚠️ Аккаунт с таким email уже существует!',
+    err_notfound:'⚠️ Email не найден. Создай новый аккаунт!',
+    err_wrongpass:'⚠️ Неверный пароль!',
+    ok_created:'✅ Аккаунт создан! Выполняем вход...',
+    nav_home:'Главная', nav_missions:'Миссии', nav_shop:'Магазин', nav_prizes:'Награды', nav_profile:'Профиль',
+    hero_title:'Привет, Детектив! 🔍', hero_sub:'Помоги друзьям распознать фейки!',
+    hero_btn:'🎮 Начать миссию!',
+    streak_label:' дней подряд!', streak_play:'Играй сегодня, чтобы сохранить серию!',
+    streak_on:'🔥 День {n} - Не останавливайся!', streak_start:'Играй сегодня, чтобы начать серию!',
+    stars_today:'⭐ Звёзды сегодня', prog_play:'Зарабатывай звёзды, проходя викторины! ⭐',
+    prog_limit:'🎉 Дневной лимит достигнут! Возвращайся завтра!',
+    top_detectives:'🏆 Топ детективов',
+    missions_title:'🎯 Миссии',
+    limit_banner:'Ты достиг лимита 60 ⭐ на сегодня! Возвращайся завтра! 🌙',
+    daily_label:'📅 ЕЖЕДНЕВНАЯ ВИКТОРИНА', daily_sub:'Заработай 10 бонусных звёзд сегодня!',
+    daily_done:'✅ Пройдено сегодня!', daily_play:'▶️ Играть сейчас!',
+    daily_blocked:'Ты уже прошёл сегодняшнюю ежедневную викторину. Возвращайся после 00:00! ⏰',
+    quiz_locked:'Ты уже прошёл эту викторину сегодня. Возвращайся после 00:00! ⏰',
+    stars_5:'⭐ 5 звёзд', locked_00:'Заблокировано до 00:00',
+    play_continue:'Продолжить ➡️',
+    res_correct:'Правильно! Молодец! 🌟', res_wrong:'Неверно! Звёзды не начислены. 😢',
+    res_limit:'⏰ Дневной лимит достигнут!', res_zero:'0 ⭐ — Неверный ответ',
+    limit_daily:'Дневной лимит достигнут! Ты можешь видеть результат, но не получишь звёзды. ⏰',
+    streak_bonus:'🔥 {n} дней подряд! +{s}⭐ бонус!',
+    shop_title:'🛒 Магазин', shop_available:'Доступные звёзды',
+    shop_items:'🎒 Предметы', shop_outfits:'👕 Одежда', shop_rewards:'🎁 Призы',
+    shop_buy:'Купить', shop_owned:'✅ Куплено', shop_equip:'👕 Надеть', shop_equipped:'✅ Надето',
+    shop_notstars:'Недостаточно звёзд! ⭐',
+    shop_bought:'📧 Отправлено!', shop_cannotbuy:'',
+    modal_email_label:'Введи email для получения кода!',
+    modal_email_ph:'email@пример.com', modal_confirm:'✅ Подтвердить', modal_cancel:'✕ Отмена',
+    modal_email_err:'⚠️ Неверный email!',
+    modal_congrats:'Поздравляем!', modal_code_for:'Твой код для',
+    modal_code_label:'Твой код', modal_sent_to:'Отправлено на',
+    modal_save:'Сохрани этот код! Его нельзя будет восстановить.',
+    modal_ok:'Отлично! 🎉',
+    ach_title:'🏅 Достижения', ach_unlocked:'✅ Разблокировано!',
+    prof_title:'👤 Мой профиль', prof_logout:'🚪 Выход',
+    prof_detective:'Детектив FakeBuster', prof_total:'всего звёзд',
+    prof_correct:'Правильных ответов', prof_played:'Пройдено викторин',
+    prof_streak:'Текущая серия', prof_best:'Лучшая серия',
+    prof_avatar:'🧑 Выбери аватар', prof_recent:'🏅 Последние достижения',
+    prof_noach:'Достижений пока нет. Играй в викторины! 🎯',
+    ach_toast:'🏅 Достижение: {name}! +{b}⭐',
+    avatar_changed:'Аватар изменён! ',
+    equipped_msg:' Надето!', unequipped_msg:'Снято!',
+    item_bought:' куплено!',
+    level_novice:'Новичок 🌱', level_det:'Детектив 🔍', level_inv:'Следователь 🕵️',
+    level_exp:'Эксперт 🎯', level_master:'Мастер 🏆', level_legend:'Легенда 👑',
+    nivel:'Уровень',
+    quizzes_limit:'Ты сыграл 10 викторин сегодня! Возвращайся завтра! 🌙',
+  }
+};
+
+let currentLang = 'ro';
+
+function t(key, vars){
+  let str = (TRANSLATIONS[currentLang]||TRANSLATIONS.ro)[key] || key;
+  if(vars) Object.keys(vars).forEach(k=>{ str=str.replace('{'+k+'}',vars[k]); });
+  return str;
+}
+
+function applyLang(){
+  // Auth overlay dynamic texts
+  const subEl = document.getElementById('auth-sub-text');
+  if(subEl) subEl.textContent = t(authMode==='login'?'auth_sub_login':'auth_sub_signup');
+  const lblEmail = document.getElementById('lbl-email');
+  if(lblEmail) lblEmail.textContent = t('lbl_email');
+  const lblPass = document.getElementById('lbl-pass');
+  if(lblPass) lblPass.textContent = t('lbl_pass');
+  const lblLang = document.getElementById('lbl-lang');
+  if(lblLang) lblLang.textContent = t('lbl_lang');
+  const tabLogin = document.getElementById('tab-login');
+  if(tabLogin) tabLogin.textContent = t('login_tab');
+  const tabSignup = document.getElementById('tab-signup');
+  if(tabSignup) tabSignup.textContent = t('signup_tab');
+  const authBtn = document.getElementById('auth-submit-btn');
+  if(authBtn) authBtn.textContent = t(authMode==='login'?'auth_btn_login':'auth_btn_signup');
+  // Main app static HTML elements
+  const heroTitle = document.querySelector('#sc-home .hero h1');
+  if(heroTitle) heroTitle.textContent = t('hero_title');
+  const heroSub = document.querySelector('#sc-home .hero p');
+  if(heroSub) heroSub.textContent = t('hero_sub');
+  const heroBtn = document.querySelector('#sc-home .hero button');
+  if(heroBtn) heroBtn.textContent = t('hero_btn');
+  const streakLabel = document.querySelector('#sc-home .streak-info h3');
+  if(streakLabel){ const n=state.streak||0; streakLabel.innerHTML=`<span id="h-streak">${n}</span>${t('streak_label')}`; }
+  const starsLabel = document.querySelector('#sc-home .card span[style*="font-size:14px"]');
+  if(starsLabel) starsLabel.textContent = t('stars_today');
+  const topDet = document.querySelector('#sc-home .sec-title');
+  if(topDet) topDet.textContent = t('top_detectives');
+  const missionTitle = document.querySelector('#sc-quizlist .logo');
+  if(missionTitle) missionTitle.textContent = t('missions_title');
+  const limitBan = document.getElementById('limit-ban');
+  if(limitBan){ const first=limitBan.firstElementChild; limitBan.innerHTML=''; if(first)limitBan.appendChild(first); limitBan.append(t('limit_banner')); }
+  const shopTitle = document.querySelector('#sc-shop .logo');
+  if(shopTitle) shopTitle.textContent = t('shop_title');
+  const shopAvail = document.querySelector('#sc-shop .sbal-label');
+  if(shopAvail) shopAvail.textContent = t('shop_available');
+  const achTitle = document.querySelector('#sc-ach .logo');
+  if(achTitle) achTitle.textContent = t('ach_title');
+  const profTitle = document.querySelector('#sc-profile .logo');
+  if(profTitle) profTitle.textContent = t('prof_title');
+  const profLogout = document.querySelector('#sc-profile .btn-logout');
+  if(profLogout) profLogout.textContent = t('prof_logout');
+  const profDet = document.querySelector('#sc-profile .prof-top h2');
+  if(profDet) profDet.textContent = t('prof_detective');
+  const profTotalLbl = document.querySelector('#sc-profile .prof-sl');
+  if(profTotalLbl) profTotalLbl.textContent = t('prof_total');
+  // Stats labels
+  const statLabels = document.querySelectorAll('#sc-profile .stat-c .sl');
+  if(statLabels.length>=4){
+    statLabels[0].textContent=t('prof_correct');
+    statLabels[1].textContent=t('prof_played');
+    statLabels[2].textContent=t('prof_streak');
+    statLabels[3].textContent=t('prof_best');
+  }
+  const avTitle = document.querySelector('#sc-profile .sec-title');
+  if(avTitle) avTitle.textContent = t('prof_avatar');
+  const secTitles = document.querySelectorAll('#sc-profile .sec-title');
+  if(secTitles.length>=2) secTitles[1].textContent = t('prof_recent');
+  // Nav buttons
+  const nbs = document.querySelectorAll('.nb');
+  const navKeys=['nav_home','nav_missions','nav_shop','nav_prizes','nav_profile'];
+  const navIcons=['🏠','🎯','🛒','🏅','👤'];
+  nbs.forEach((nb,i)=>{
+    if(navKeys[i]) nb.innerHTML=`<span class="ni">${navIcons[i]}</span>${t(navKeys[i])}`;
+  });
+  // Shop tabs
+  const stabs = document.querySelectorAll('.stab');
+  if(stabs.length>=3){
+    stabs[0].textContent=t('shop_items');
+    stabs[1].textContent=t('shop_outfits');
+    stabs[2].textContent=t('shop_rewards');
+  }
+  // Result continue button
+  const contBtn = document.querySelector('#result-box .btn-green');
+  if(contBtn) contBtn.textContent = t('play_continue');
+  // Lang buttons active state
+  ['ro','en','ru'].forEach(l=>{
+    const btn=document.getElementById('lang-'+l);
+    if(btn) btn.classList.toggle('active',l===currentLang);
+  });
+}
+
+function selectLang(lang){
+  currentLang = lang;
+  applyLang();
+}
+
+// ===================== AUTH + USER DATA =====================
+let currentEmail = '';
+
+function getUsers(){
+  return JSON.parse(localStorage.getItem('fb_users')||'{}');
+}
+function saveUsers(users){
+  localStorage.setItem('fb_users',JSON.stringify(users));
+}
+
+function makeDefaultGameData(){
+  const today = new Date().toDateString();
+  return {
+    totalStars:0,starsToday:0,streak:0,bestStreak:0,
+    lastPlayDate:'',correctAnswers:0,quizzesPlayed:0,
+    done:[],dailyDone:[],dailyCount:0,owned:[],equipped:'',avatar:'🕵️',
+    achievements:[],
+    leaderboard:[{name:'AnaDetectiv',stars:245,av:'👧'},{name:'IonBuster',stars:180,av:'🕵️'},{name:'MariaDeFier',stars:120,av:'🦸'}],
+    emails:{},date:today,lang:'ro'
+  };
+}
+
+function loadState(){
+  const today = new Date().toDateString();
+  const users = getUsers();
+  let s = users[currentEmail] ? users[currentEmail].gameData : makeDefaultGameData();
+  if(!s) s = makeDefaultGameData();
+  if(s.date !== today){
+    s.starsToday = 0;
+    s.dailyDone = [];
+    s.dailyCount = 0;
+    s.date = today;
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+    if(s.lastPlayDate && s.lastPlayDate !== yesterday.toDateString() && s.lastPlayDate !== today){
+      s.streak = 0;
+    }
+  }
+  return {
+    totalStars: s.totalStars||0,
+    starsToday: s.starsToday||0,
+    streak: s.streak||0,
+    bestStreak: s.bestStreak||0,
+    lastPlayDate: s.lastPlayDate||'',
+    correctAnswers: s.correctAnswers||0,
+    quizzesPlayed: s.quizzesPlayed||0,
+    done: s.done||[],
+    dailyDone: s.dailyDone||[],
+    dailyCount: s.dailyCount||0,
+    owned: s.owned||[],
+    equipped: s.equipped||'',
+    avatar: s.avatar||'🕵️',
+    achievements: s.achievements||[],
+    leaderboard: s.leaderboard||[{name:'AnaDetectiv',stars:245,av:'👧'},{name:'IonBuster',stars:180,av:'🕵️'},{name:'MariaDeFier',stars:120,av:'🦸'}],
+    emails: s.emails||{},
+    date: s.date||today,
+    lang: s.lang||'ro',
+  };
+}
+
+function save(){
+  const users = getUsers();
+  if(!users[currentEmail]) users[currentEmail] = {password:'',gameData:{}};
+  users[currentEmail].gameData = state;
+  saveUsers(users);
+}
+
+let state = {};
+
+// ===================== AUTH UI =====================
+let authMode = 'login';
+let signupLang = 'ro';
+
+function switchAuthTab(mode){
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode==='login');
+  document.getElementById('tab-signup').classList.toggle('active', mode==='signup');
+  const langField = document.getElementById('lang-field');
+  if(langField) langField.style.display = mode==='signup' ? 'block' : 'none';
+  document.getElementById('auth-err').classList.remove('show');
+  document.getElementById('auth-ok').classList.remove('show');
+  applyLang();
+}
+
+function showAuthErr(msg){
+  const el = document.getElementById('auth-err');
+  el.textContent = msg; el.classList.add('show');
+  document.getElementById('auth-ok').classList.remove('show');
+}
+function showAuthOk(msg){
+  const el = document.getElementById('auth-ok');
+  el.textContent = msg; el.classList.add('show');
+  document.getElementById('auth-err').classList.remove('show');
+}
+
+function submitAuth(){
+  const email = document.getElementById('auth-email').value.trim().toLowerCase();
+  const pass = document.getElementById('auth-pass').value;
+  const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRx.test(email)){ showAuthErr(t('err_email')); return; }
+  if(pass.length < 4){ showAuthErr(t('err_pass')); return; }
+  const users = getUsers();
+  if(authMode === 'signup'){
+    if(users[email]){ showAuthErr(t('err_exists')); return; }
+    const gd = makeDefaultGameData();
+    gd.lang = currentLang;
+    users[email] = { password: pass, gameData: gd };
+    saveUsers(users);
+    showAuthOk(t('ok_created'));
+    setTimeout(()=>loginUser(email), 900);
+  } else {
+    if(!users[email]){ showAuthErr(t('err_notfound')); return; }
+    if(users[email].password !== pass){ showAuthErr(t('err_wrongpass')); return; }
+    loginUser(email);
+  }
+}
+
+function loginUser(email){
+  currentEmail = email;
+  localStorage.setItem('fb_logged', email);
+  state = loadState();
+  currentLang = state.lang || 'ro';
+  save();
+  document.getElementById('auth-overlay').classList.add('hidden');
+  applyLang();
+  updateUI();
+}
+
+function doLogout(){
+  localStorage.removeItem('fb_logged');
+  location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  ['auth-email','auth-pass'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') submitAuth(); });
+  });
+  applyLang();
+});
+
+// ===================== BOOT =====================
+(function boot(){
+  applyLang();
+  const logged = localStorage.getItem('fb_logged');
+  if(logged){
+    const users = getUsers();
+    if(users[logged]){
+      currentEmail = logged;
+      state = loadState();
+      currentLang = state.lang || 'ro';
+      save();
+      document.getElementById('auth-overlay').classList.add('hidden');
+      applyLang();
+      updateUI();
+    } else {
+      localStorage.removeItem('fb_logged');
+      document.getElementById('auth-overlay').classList.remove('hidden');
+    }
+  } else {
+    document.getElementById('auth-overlay').classList.remove('hidden');
+  }
+})();
+
+// ===================== AUDIO =====================
+const AC = window.AudioContext ? new AudioContext() : null;
+function playSound(type){
+  if(!AC) return;
+  const o=AC.createOscillator(), g=AC.createGain();
+  o.connect(g); g.connect(AC.destination);
+  if(type==='click'){o.frequency.value=600;g.gain.setValueAtTime(.3,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.1);}
+  else if(type==='correct'){o.type='sine';o.frequency.setValueAtTime(523,AC.currentTime);o.frequency.setValueAtTime(659,AC.currentTime+.1);o.frequency.setValueAtTime(784,AC.currentTime+.2);g.gain.setValueAtTime(.4,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.5);}
+  else if(type==='wrong'){o.type='sawtooth';o.frequency.setValueAtTime(200,AC.currentTime);o.frequency.setValueAtTime(150,AC.currentTime+.2);g.gain.setValueAtTime(.3,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.4);}
+  else if(type==='star'){o.type='sine';o.frequency.setValueAtTime(880,AC.currentTime);o.frequency.setValueAtTime(1100,AC.currentTime+.05);g.gain.setValueAtTime(.2,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.3);}
+  o.start(); o.stop(AC.currentTime+.6);
+}
+
+// ===================== NAV =====================
+function navTo(scId, btn){
+  playSound('click');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(scId).classList.add('active');
+  if(btn){document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  updateUI();
+}
+
+// ===================== UPDATE UI =====================
+function updateUI(){
+  const sc = document.querySelector('.screen.active').id;
+  ['h-stars','ql-stars','sh-bal','ac-stars'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=state.totalStars;});
+  const sel=document.getElementById('h-streak');if(sel)sel.textContent=state.streak;
+  const ssub=document.getElementById('streak-sub');
+  if(ssub)ssub.textContent=state.streak>0?t('streak_on',{n:state.streak}):t('streak_start');
+  const pct=Math.min(100,(state.starsToday/60)*100);
+  const pb=document.getElementById('h-prog');if(pb)pb.style.width=pct+'%';
+  const pt=document.getElementById('h-today-stars');if(pt)pt.textContent=state.starsToday+' / 60';
+  const pm=document.getElementById('h-prog-msg');
+  if(pm)pm.textContent=state.starsToday>=60?t('prog_limit'):t('prog_play');
+  const avEl=document.getElementById('hero-av-em');if(avEl)avEl.textContent=state.avatar;
+  const outEl=document.getElementById('hero-outfit');
+  if(outEl){const eqItem=SHOP_ITEMS.find(i=>i.id===state.equipped&&i.tab==='outfits');outEl.textContent=eqItem?eqItem.icon:'';}
+  const lb=document.getElementById('limit-ban');if(lb)lb.classList.toggle('show',state.starsToday>=60);
+  applyLang();
+  if(sc==='sc-home')renderHome();
+  if(sc==='sc-quizlist')renderQuizList();
+  if(sc==='sc-shop')renderShop();
+  if(sc==='sc-ach')renderAch();
+  if(sc==='sc-profile')renderProfile();
+}
+
+// ===================== HOME =====================
+function renderHome(){
+  renderDailyQuiz('daily-quiz-home');
+  const lb=document.getElementById('home-lb');
+  if(!lb)return;
+  const sorted=[...state.leaderboard].sort((a,b)=>b.stars-a.stars).slice(0,3);
+  lb.innerHTML=sorted.map((e,i)=>{
+    const rc=['gold','silver','bronze'][i]||'';
+    const medal=['🥇','🥈','🥉'][i]||`${i+1}`;
+    return `<div class="lb-item${e.me?' me':''}">
+      <div class="lb-rank ${rc}">${medal}</div>
+      <div class="lb-av">${e.av||'🕵️'}</div>
+      <div class="lb-name">${e.name}${e.me?' (Tu)':''}</div>
+      <div class="lb-stars">⭐ ${e.stars}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDailyQuiz(containerId){
+  const container=document.getElementById(containerId);if(!container)return;
+  const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));
+  const dq=QUIZZES_DATA[dayOfYear%QUIZZES_DATA.length];
+  const dailyKey='daily_'+dq.id;
+  const done=state.dailyDone.includes(dailyKey);
+  container.innerHTML=`<div class="daily-quiz-banner" onclick="${done?'showToast(t(\'daily_blocked\'))':'startQuiz(\''+dq.id+'\',true)'}">
+    <div style="font-size:12px;font-weight:900;opacity:.8;margin-bottom:4px">${t('daily_label')}</div>
+    <h3>${dq.icon} ${dq.title}</h3>
+    <p>${t('daily_sub')}</p>
+    ${done?`<div class="daily-done-tag">${t('daily_done')}</div>`:`<div class="daily-done-tag">${t('daily_play')}</div>`}
+  </div>`;
+}
+
+// ===================== QUIZ LIST =====================
+function renderQuizList(){
+  renderDailyQuiz('daily-quiz-list');
+  const g=document.getElementById('quiz-grid');if(!g)return;
+  g.innerHTML=QUIZZES_DATA.map(q=>{
+    const done=state.dailyDone.includes(q.id);
+    return `<div class="qcard ${done?'done locked':''}" onclick="${done?'showToast(t(\'quiz_locked\'))':'startQuiz(\''+q.id+'\',false)'}">
+      ${done?'<div class="done-badge">✅</div>':''}
+      <div class="qi">${q.icon}</div>
+      <div class="qt">${q.title}</div>
+      <div class="qs">${done?t('locked_00'):t('stars_5')}</div>
+    </div>`;
+  }).join('');
+}
+
+let currentWeek=1;
+function setWeek(w,btn){}
+
+// ===================== QUIZ PLAY =====================
+let activeQuiz=null, answered=false, isDaily=false;
+function startQuiz(id, daily){
+  playSound('click');
+  isDaily = !!daily;
+  const dailyKey = daily ? 'daily_'+id : id;
+  if(state.dailyDone.includes(dailyKey)){
+    showToast(daily ? t('daily_blocked') : t('quiz_locked'));
+    navTo('sc-quizlist',document.querySelectorAll('.nb')[1]);
+    return;
+  }
+  // Check 10 quiz per day limit (only for non-daily quizzes)
+  if(!daily && state.dailyCount >= 10){
+    showToast(t('quizzes_limit'));
+    return;
+  }
+  activeQuiz=QUIZZES_DATA.find(q=>q.id===id);
+  if(!activeQuiz)return;
+  answered=false;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sc-play').classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('play-title').textContent=activeQuiz.title;
+  document.getElementById('play-stars').textContent=state.totalStars;
+  document.getElementById('play-back').onclick=()=>navTo('sc-quizlist',document.querySelectorAll('.nb')[1]);
+  // Char
+  const ch=CHARS[activeQuiz.char||0];
+  document.getElementById('char-intro').style.display='flex';
+  document.getElementById('char-face').textContent=ch.face;
+  document.getElementById('char-name').textContent=ch.name;
+  document.getElementById('char-msg').textContent=ch.msg;
+  // Media
+  document.getElementById('play-news').innerHTML=`${activeQuiz.news}<div class="news-src">🔗 ${activeQuiz.src}</div>`;
+  document.getElementById('play-media').style.background='linear-gradient(135deg,#1A1A2E,#16213E)';
+  document.getElementById('play-q').textContent=activeQuiz.q;
+  // Answers
+  const letters=['A','B','C','D'];
+  document.getElementById('play-answers').innerHTML=activeQuiz.answers.map((a,i)=>`
+    <button class="ans-btn" id="ans${i}" onclick="selectAns(${i})">
+      <div class="ans-letter">${letters[i]}</div>
+      <span>${a.t}</span>
+    </button>`).join('');
+  document.getElementById('result-box').classList.remove('show');
+}
+
+function addStars(amount){
+  let canAdd=Math.max(0,60-state.starsToday);
+  let add=Math.min(amount,canAdd);
+  state.totalStars+=add;
+  state.starsToday+=add;
+  save();
+}
+
+function selectAns(idx){
+  if(answered)return;
+  answered=true;
+  const q=activeQuiz;
+  const correct=q.answers[idx].c;
+  const limitHit=state.starsToday>=60;
+  // Daily quiz = 10 stars fixed; regular quiz = 5 stars fixed
+  const starsToAdd=correct&&!limitHit?(isDaily?10:5):0;
+  playSound(correct?'correct':'wrong');
+  q.answers.forEach((a,i)=>{
+    const b=document.getElementById('ans'+i);
+    b.disabled=true;
+    if(a.c)b.classList.add('correct');
+    else if(i===idx&&!a.c)b.classList.add('wrong');
+  });
+  state.quizzesPlayed++;
+  let stars=0;
+  if(correct){
+    state.correctAnswers++;
+    if(starsToAdd>0){
+      const before=state.starsToday;
+      addStars(starsToAdd);
+      stars=state.starsToday-before;
+      if(stars>0){spawnStars(stars);playSound('star');}
+    }
+  }
+  if(!state.done.includes(q.id))state.done.push(q.id);
+  // Track daily key differently for daily quiz vs regular
+  const dailyKey = isDaily ? 'daily_'+q.id : q.id;
+  if(!state.dailyDone.includes(dailyKey))state.dailyDone.push(dailyKey);
+  if(!isDaily) state.dailyCount=(state.dailyCount||0)+1;
+  // Streak update
+  const today=new Date().toDateString();
+  if(state.lastPlayDate!==today){
+    const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+    if(state.lastPlayDate===yesterday.toDateString()){state.streak++;}
+    else{state.streak=1;}
+    state.lastPlayDate=today;
+    if(state.streak>state.bestStreak)state.bestStreak=state.streak;
+    if(correct&&!limitHit){
+      const streakBonus=[{days:5,stars:25},{days:7,stars:40}];
+      for(const sb of streakBonus){
+        if(state.streak===sb.days){
+          addStars(sb.stars);
+          setTimeout(()=>showToast(t('streak_bonus',{n:sb.days,s:sb.stars})),800);
+        }
+      }
+    }
+  }
+  const me=state.leaderboard.find(e=>e.me);
+  if(me){me.stars=state.totalStars;}
+  else{state.leaderboard.push({name:'Tu',stars:state.totalStars,av:state.avatar,me:true});}
+  checkAchievements();
+  save();
+  const rb=document.getElementById('result-box');
+  document.getElementById('res-emoji').textContent=correct?'🎉':'😅';
+  document.getElementById('res-title').textContent=correct?t('res_correct'):t('res_wrong');
+  document.getElementById('res-earned').textContent=stars>0?`+${stars} ⭐`:(limitHit&&correct?t('res_limit'):t('res_zero'));
+  document.getElementById('res-tip').textContent=q.tip;
+  document.getElementById('play-stars').textContent=state.totalStars;
+  rb.classList.add('show');
+  if(correct&&stars>0)spawnConfetti();
+}
+
+function afterQuiz(){navTo('sc-quizlist',document.querySelectorAll('.nb')[1]);}
+
+// ===================== SHOP =====================
+let activeTab='items';
+function shopTab(tab,btn){
+  playSound('click');
+  activeTab=tab;
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderShop();
+}
+
+function renderShop(){
+  document.getElementById('sh-bal').textContent=state.totalStars;
+  const list=document.getElementById('shop-list');if(!list)return;
+  if(activeTab==='rewards'){
+    list.innerHTML=REWARDS.map(r=>{
+      const bought=state.emails[r.id];
+      const canBuy=state.totalStars>=r.price&&!bought;
+      return `<div class="reward-card sitem">
+        <div class="sitem-icon" style="background:${r.color}33;font-size:38px">${r.icon}</div>
+        <div class="sitem-info">
+          <h4>${r.name}</h4>
+          <p>${r.desc}</p>
+          <div class="price-tag">⭐ ${r.price}</div>
+        </div>
+        <button class="btn-reward${bought?' owned':''}" ${!canBuy&&!bought?'disabled':''} onclick="buyReward('${r.id}')">
+          ${bought?t('shop_bought'):canBuy?'🎁 '+t('shop_buy'):'⭐'+r.price}
+        </button>
+      </div>`;
+    }).join('');
+  } else {
+    const items=SHOP_ITEMS.filter(i=>i.tab===activeTab);
+    list.innerHTML=items.map(item=>{
+      const owned=state.owned.includes(item.id);
+      const equipped=state.equipped===item.id;
+      const canBuy=state.totalStars>=item.price&&!owned;
+      return `<div class="sitem">
+        <div class="sitem-icon" style="background:${item.color}22">${item.icon}</div>
+        <div class="sitem-info">
+          <h4>${item.name}</h4>
+          <p>${item.desc}</p>
+          <div class="price-tag">⭐ ${item.price}</div>
+        </div>
+        <button class="btn-buy ${owned?(equipped?'equipped':'owned'):''}" 
+          ${!canBuy&&!owned?'disabled':''} 
+          onclick="${owned?(item.tab==='outfits'?`equipItem('${item.id}')`:'void 0'):`buyItem('${item.id}')`}">
+          ${equipped?t('shop_equipped'):owned?(item.tab==='outfits'?t('shop_equip'):t('shop_owned')):(canBuy?t('shop_buy'):'⭐'+item.price)}
+        </button>
+      </div>`;
+    }).join('');
+  }
+}
+
+function buyItem(id){
+  playSound('click');
+  const item=SHOP_ITEMS.find(i=>i.id===id);
+  if(!item||state.owned.includes(id))return;
+  if(state.totalStars<item.price){showToast('Nu ai suficiente stele! ⭐');return;}
+  state.totalStars-=item.price;
+  state.owned.push(id);
+  checkAchievements();save();renderShop();
+  showToast(`${item.icon} ${item.name} cumpărat!`);
+  spawnConfetti();
+}
+
+function equipItem(id){
+  playSound('click');
+  state.equipped=state.equipped===id?'':id;
+  save();renderShop();updateUI();
+  const item=SHOP_ITEMS.find(i=>i.id===id);
+  showToast(state.equipped===id?`${item.icon} Echipat!`:'Dezechipat!');
+}
+
+function buyReward(id){
+  playSound('click');
+  const reward=REWARDS.find(r=>r.id===id);
+  if(!reward||state.emails[id])return;
+  if(state.totalStars<reward.price){showToast('Nu ai suficiente stele! ⭐');return;}
+  showEmailModal(reward);
+}
+
+function showEmailModal(reward){
+  const m=document.getElementById('modal-content');
+  m.innerHTML=`
+    <div class="reward-big">${reward.icon}</div>
+    <h3>${reward.name}</h3>
+    <p>Introdu adresa de email pentru a primi codul tău!</p>
+    <input class="inp" id="modal-email" type="email" placeholder="email@exemplu.com" />
+    <div id="modal-err" style="color:var(--c1);font-size:12px;font-weight:800;margin-bottom:8px;display:none">⚠️ Email invalid!</div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" onclick="confirmReward('${reward.id}')">✅ Confirmă</button>
+      <button class="btn" style="background:#EEF0FF;color:var(--muted)" onclick="closeModal()">✕ Anulează</button>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function confirmReward(id){
+  const emailInput=document.getElementById('modal-email');
+  const email=emailInput?emailInput.value.trim():'';
+  const emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRx.test(email)){
+    document.getElementById('modal-err').style.display='block';return;
+  }
+  const reward=REWARDS.find(r=>r.id===id);
+  const voucher=reward.vouchers[Math.floor(Math.random()*reward.vouchers.length)];
+  state.totalStars-=reward.price;
+  state.emails[id]={email,voucher,date:new Date().toDateString()};
+  save();closeModal();renderShop();updateUI();
+  showVoucherModal(reward,voucher,email);
+  spawnConfetti();
+}
+
+function showVoucherModal(reward,voucher,email){
+  const m=document.getElementById('modal-content');
+  m.innerHTML=`
+    <div class="reward-big">🎉</div>
+    <h3>Felicitări!</h3>
+    <p>Codul tău pentru <strong>${reward.name}</strong>:</p>
+    <div class="voucher-display">
+      <p>Codul tău</p>
+      <div class="vc">${voucher}</div>
+      <p>Trimis la ${email}</p>
+    </div>
+    <p style="color:var(--muted);font-size:12px;font-weight:700;margin:10px 0">Salvează acest cod! Nu va mai putea fi recuperat.</p>
+    <button class="btn btn-green btn-full" onclick="closeModal()">Super! 🎉</button>`;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');}
+
+// ===================== ACHIEVEMENTS =====================
+function checkAchievements(){
+  let newAch=false;
+  for(const ach of ACHIEVEMENTS){
+    if(!state.achievements.includes(ach.id)&&ach.cond(state)){
+      state.achievements.push(ach.id);
+      addStars(ach.bonus); // usa addStars pentru a respecta limita zilnică
+      newAch=true;
+      setTimeout(()=>{showToast(`🏅 Realizare: ${ach.name}! +${ach.bonus}⭐`);spawnConfetti();},500);
+    }
+  }
+  if(newAch)save();
+}
+
+function renderAch(){
+  const g=document.getElementById('ach-grid');if(!g)return;
+  g.innerHTML=ACHIEVEMENTS.map(a=>{
+    const unlocked=state.achievements.includes(a.id);
+    return `<div class="ach-card ${unlocked?'unlocked':'locked'}">
+      <div class="ai">${a.icon}</div>
+      <div class="at">${a.name}</div>
+      <div class="ad">${a.desc}</div>
+      <div class="ab">${unlocked?'✅ Deblocat!':'+'+a.bonus+' ⭐'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== PROFILE =====================
+function renderProfile(){
+  document.getElementById('prof-stars').textContent=state.totalStars;
+  document.getElementById('prof-av-em').textContent=state.avatar;
+  const eqItem=SHOP_ITEMS.find(i=>i.id===state.equipped&&i.tab==='outfits');
+  document.getElementById('prof-outfit-badge').textContent=eqItem?eqItem.icon:'';
+  document.getElementById('ps-correct').textContent=state.correctAnswers;
+  document.getElementById('ps-played').textContent=state.quizzesPlayed;
+  document.getElementById('ps-streak').textContent=state.streak;
+  document.getElementById('ps-best').textContent=state.bestStreak;
+  const levels=[{min:0,n:'Novice 🌱'},{min:30,n:'Detectiv 🔍'},{min:80,n:'Investigator 🕵️'},{min:150,n:'Expert 🎯'},{min:250,n:'Master 🏆'},{min:400,n:'Legend 👑'}];
+  let lv=levels[0];for(const l of levels)if(state.totalStars>=l.min)lv=l;
+  document.getElementById('prof-level').textContent=`Nivel · ${lv.n}`;
+  // Avatar grid
+  const ag=document.getElementById('av-grid');if(ag){
+    ag.innerHTML=AVATARS.map(a=>`
+      <div class="av-opt${state.avatar===a.em?' sel':''}" onclick="selectAvatar('${a.em}')">
+        <div class="av-em">${a.em}</div>
+        <div class="av-nm">${a.name}</div>
+      </div>`).join('');
+  }
+  // Recent achievements
+  const pa=document.getElementById('prof-ach');if(pa){
+    const recent=ACHIEVEMENTS.filter(a=>state.achievements.includes(a.id)).slice(-4);
+    if(recent.length===0){pa.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-weight:700;padding:12px">Nicio realizare încă. Joacă quiz-uri! 🎯</div>';}
+    else{pa.innerHTML=recent.map(a=>`<div class="ach-card unlocked"><div class="ai">${a.icon}</div><div class="at">${a.name}</div><div class="ad">${a.desc}</div><div class="ab">✅ Deblocat!</div></div>`).join('');}
+  }
+}
+
+function selectAvatar(em){
+  playSound('click');
+  state.avatar=em;
+  // Update leaderboard me entry
+  const me=state.leaderboard.find(e=>e.me);
+  if(me)me.av=em;
+  save();renderProfile();updateUI();
+  showToast('Avatar schimbat! '+em);
+}
+
+// ===================== ANIMATIONS =====================
+function spawnStars(n){
+  for(let i=0;i<Math.min(n,8);i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');el.className='star-float';el.textContent='⭐';
+      el.style.left=(25+Math.random()*50)+'%';el.style.top=(35+Math.random()*25)+'%';
+      document.body.appendChild(el);setTimeout(()=>el.remove(),1300);
+    },i*90);
+  }
+}
+
+function spawnConfetti(){
+  const cols=['#FF6B6B','#FFD93D','#6BCB77','#4ECDC4','#A855F7','#FF9A3C'];
+  for(let i=0;i<35;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');el.className='confetti-p';
+      el.style.cssText=`left:${Math.random()*100}vw;top:5vh;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${Math.random()*.4}s;`;
+      document.body.appendChild(el);setTimeout(()=>el.remove(),2200);
+    },i*35);
+  }
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ===================== INIT =====================
+// boot() handles initialization above
+</script>
+</body>
+</html>
